@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎖️ أكاديمية قادة النصر - تسجيل اللاعبين 🎖️</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      direction: rtl;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse-gold {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .animate-pulse-gold {
+      animation: pulse-gold 2s infinite;
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .form-input {
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+    }
+    
+    .gold-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+    }
+    
+    .gold-text {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .card-glow {
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+    }
+    
+    .nav-tab {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-tab:hover {
+      transform: translateY(-3px);
+    }
+    
+    .player-card {
+      transition: all 0.3s ease;
+      transform-style: preserve-3d;
+    }
+    
+    .player-card:hover {
+      transform: translateY(-5px) rotateX(5deg);
+    }
+    
+    .floating-shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      z-index: 0;
+    }
+    
+    .content-section {
+      display: none;
+    }
+    
+    .content-section.active {
+      display: block;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+  <!-- Floating shapes for background -->
+  <div class="floating-shape w-64 h-64 bg-amber-400 top-20 -left-32 animate-float" style="animation-delay: 0s;"></div>
+  <div class="floating-shape w-32 h-32 bg-amber-400 bottom-1/4 -right-16 animate-float" style="animation-delay: 1s;"></div>
+  <div class="floating-shape w-40 h-40 bg-amber-400 top-1/3 left-1/4 animate-float" style="animation-delay: 2s;"></div>
+  
+  <!-- Header -->
+  <header class="text-center py-8 px-4 bg-gradient-to-r from-slate-800 to-slate-900 shadow-2xl relative z-10">
+    <div class="animate-fade-in">
+      <h1 class="text-4xl md:text-5xl font-extrabold gold-text mb-2">
+        🎖️ أكاديمية قادة النصر 🎖️
+      </h1>
+      <p class="text-lg md:text-xl font-medium text-amber-200 mt-3">
+        تسجيل اللاعبين المواليد 2006-2007-2008-2009
+      </p>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="flex justify-center mt-6 px-4 relative z-10">
+    <div class="flex space-x-2 md:space-x-4 bg-slate-800 p-2 rounded-xl shadow-lg">
+      <button id="tabForm" class="nav-tab gold-gradient text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-user-plus ml-2"></i> تسجيل لاعب
+      </button>
+      <button id="tabPlayers" class="nav-tab bg-slate-700 text-amber-300 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-users ml-2"></i> اللاعبون المسجلون
+      </button>
+      <button id="tabAbout" class="nav-tab bg-slate-700 text-amber-300 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-info-circle ml-2"></i> عن الأكاديمية
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="flex-grow flex items-center justify-center p-4 relative z-10">
+    
+    <!-- Form Section -->
+    <section id="formSection" class="content-section active w-full max-w-4xl">
+      <div id="captureArea" class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl card-glow w-full transition-all duration-300 transform hover:scale-[1.02] border border-amber-500/20">
+        <h2 class="text-3xl font-bold text-center text-amber-400 mb-6 pb-2 border-b border-amber-400/30">
+          <i class="fas fa-file-alt ml-2"></i> استمارة تسجيل لاعب
+        </h2>
+        <form id="playerForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="name" class="block text-lg font-semibold text-amber-300 mb-2">
+                <i class="fas fa-user ml-2"></i> الاسم الكامل
+              </label>
+              <input type="text" id="name" required class="form-input mt-1 p-3 w-full bg-gray-700/70 text-white rounded-lg border border-amber-500/30 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div>
+              <label for="birthYear" class="block text-lg font-semibold text-amber-300 mb-2">
+                <i class="fas fa-birthday-cake ml-2"></i> سنة الميلاد
+              </label>
+              <select id="birthYear" required class="form-input mt-1 p-3 w-full bg-gray-700/70 text-white rounded-lg border border-amber-500/30 focus:outline-none focus:border-amber-400">
+                <option value="">-- اختر السنة --</option>
+                <option value="2006">2006</option>
+                <option value="2007">2007</option>
+                <option value="2008">2008</option>
+                <option value="2009">2009</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="phone" class="block text-lg font-semibold text-amber-300 mb-2">
+                <i class="fas fa-phone ml-2"></i> رقم الهاتف
+              </label>
+              <input type="tel" id="phone" placeholder="مثال: 07XXXXXXXX" required class="form-input mt-1 p-3 w-full bg-gray-700/70 text-white rounded-lg border border-amber-500/30 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div>
+              <label for="position" class="block text-lg font-semibold text-amber-300 mb-2">
+                <i class="fas fa-futbol ml-2"></i> المركز
+              </label>
+              <select id="position" required class="form-input mt-1 p-3 w-full bg-gray-700/70 text-white rounded-lg border border-amber-500/30 focus:outline-none focus:border-amber-400">
+                <option value="">-- اختر المركز --</option>
+                <option>حارس مرمى</option>
+                <option>مدافع</option>
+                <option>وسط</option>
+                <option>مهاجم</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" id="submitBtn" class="w-full gold-gradient text-gray-900 font-bold py-3 rounded-lg shadow-lg hover:shadow-amber-500/20 transition-all duration-300 transform hover:scale-[1.02] animate-pulse-gold flex items-center justify-center">
+              <i class="fas fa-paper-plane ml-2"></i> إرسال التقديم
+            </button>
+          </div>
+        </form>
+        <p id="msg" class="text-center mt-6 text-lg font-semibold py-2 rounded-lg"></p>
+      </div>
+    </section>
+    
+    <!-- Players List Section -->
+    <section id="playersSection" class="content-section w-full max-w-4xl">
+      <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl card-glow w-full border border-amber-500/20">
+        <h2 class="text-3xl font-bold text-center text-amber-400 mb-6 pb-2 border-b border-amber-400/30">
+          <i class="fas fa-users ml-2"></i> اللاعبون المسجلون
+        </h2>
+        
+        <div class="flex justify-center mb-6">
+          <div class="flex space-x-2 bg-slate-700 p-2 rounded-lg">
+            <button class="filter-btn bg-amber-500 text-gray-900 font-bold px-4 py-2 rounded" data-year="all">الكل</button>
+            <button class="filter-btn bg-slate-600 text-amber-300 font-bold px-4 py-2 rounded" data-year="2006">2006</button>
+            <button class="filter-btn bg-slate-600 text-amber-300 font-bold px-4 py-2 rounded" data-year="2007">2007</button>
+            <button class="filter-btn bg-slate-600 text-amber-300 font-bold px-4 py-2 rounded" data-year="2008">2008</button>
+            <button class="filter-btn bg-slate-600 text-amber-300 font-bold px-4 py-2 rounded" data-year="2009">2009</button>
+          </div>
+        </div>
+        
+        <div id="playersList" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-2">
+          <!-- Players will be dynamically added here -->
+          <div class="text-center py-8 text-amber-200">
+            <i class="fas fa-users text-4xl mb-4"></i>
+            <p>لا يوجد لاعبون مسجلون بعد</p>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-center space-x-4">
+          <button id="exportBtn" class="gold-gradient text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center">
+            <i class="fas fa-download ml-2"></i> تصدير البيانات
+          </button>
+          <button id="clearBtn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+            <i class="fas fa-trash ml-2"></i> مسح الكل
+          </button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- About Academy Section -->
+    <section id="aboutSection" class="content-section w-full max-w-4xl">
+      <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl card-glow w-full border border-amber-500/20">
+        <h2 class="text-3xl font-bold text-center text-amber-400 mb-6 pb-2 border-b border-amber-400/30">
+        <h2 class="text-3xl font-bold text-center text-amber-400 mb-6 pb-2 border-b border-amber-400/30">
+  <i class="fas fa-info-circle ml-2"></i> عن أكاديمية قادة النصر
+</h2>
+<div class="space-y-4 text-amber-100 text-lg leading-relaxed">
+  <p>تهدف أكاديمية قادة النصر إلى اكتشاف ورعاية المواهب الكروية من مواليد 2006-2009.</p>
+  <p>نسعى لتحسين المهارات البدنية والفنية للاعبين، وتطوير قدراتهم العقلية والانضباطية.</p>
+  <p>توفر الأكاديمية تدريبًا احترافيًا على يد مدربين متخصصين لضمان بناء جيل متميز رياضيًا وأخلاقيًا.</p>
+  <p>كما نركز على تعزيز التعاون وروح الفريق لدى اللاعبين وتوفير بيئة محفزة للنمو والتعلم.</p>
+</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-6 px-4 bg-slate-800 mt-8 text-center text-amber-200 relative z-10">
+    <p>© 2025 أكاديمية قادة النصر. جميع الحقوق محفوظة.</p>
+    <div class="flex justify-center space-x-4 mt-4">
+      <a href="#" class="text-amber-300 hover:text-amber-400 transition"><i class="fab fa-facebook fa-lg"></i></a>
+      <a href="#" class="text-amber-300 hover:text-amber-400 transition"><i class="fab fa-instagram fa-lg"></i></a>
+      <a href="#" class="text-amber-300 hover:text-amber-400 transition"><i class="fab fa-twitter fa-lg"></i></a>
+      <a href="#" class="text-amber-300 hover:text-amber-400 transition"><i class="fab fa-youtube fa-lg"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("playerForm");
+      const msg = document.getElementById("msg");
+      const submitBtn = document.getElementById("submitBtn");
+      const playersList = document.getElementById("playersList");
+      
+      // Tab navigation
+      const tabForm = document.getElementById("tabForm");
+      const tabPlayers = document.getElementById("tabPlayers");
+      const tabAbout = document.getElementById("tabAbout");
+      const formSection = document.getElementById("formSection");
+      const playersSection = document.getElementById("playersSection");
+      const aboutSection = document.getElementById("aboutSection");
+      
+      // Filter buttons
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      
+      // Buttons
+      const exportBtn = document.getElementById("exportBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      
+      // Load players from localStorage
+      let players = JSON.parse(localStorage.getItem('players')) || [];
+      
+      // Initialize the page
+      updatePlayersList();
+      
+      // Tab switching functionality
+      tabForm.addEventListener('click', () => switchTab(tabForm, formSection));
+      tabPlayers.addEventListener('click', () => switchTab(tabPlayers, playersSection));
+      tabAbout.addEventListener('click', () => switchTab(tabAbout, aboutSection));
+      
+      // Filter buttons functionality
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('bg-amber-500', 'text-gray-900'));
+          filterBtns.forEach(b => b.classList.add('bg-slate-600', 'text-amber-300'));
+          
+          btn.classList.remove('bg-slate-600', 'text-amber-300');
+          btn.classList.add('bg-amber-500', 'text-gray-900');
+          
+          const year = btn.getAttribute('data-year');
+          updatePlayersList(year);
+        });
+      });
+      
+      // Form submission
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الإرسال...';
+        msg.textContent = "";
+        msg.className = "text-center mt-6 text-lg font-semibold py-2 rounded-lg";
+
+        const name = document.getElementById("name").value;
+        const year = document.getElementById("birthYear").value;
+        const phone = document.getElementById("phone").value;
+        const position = document.getElementById("position").value;
+
+        if (!(year === "2006" || year === "2007" || year === "2008" || year === "2009")) {
+          msg.style.background = "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.2) 100%)";
+          msg.style.color = "#fecaca";
+          msg.textContent = "❌ فقط مواليد 2006 و2007 و2008 و2009 مسموح.";
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i> إرسال التقديم';
+          return;
+        }
+
+        try {
+          const captureArea = document.getElementById("captureArea");
+          const canvas = await html2canvas(captureArea, { scale: 2, useCORS: true });
+          const imgData = canvas.toDataURL("image/jpeg", 0.9);
+
+          players.push({ name, year, phone, position, imgData });
+          localStorage.setItem("players", JSON.stringify(players));
+
+          form.reset();
+          updatePlayersList();
+          msg.textContent = "✅ تم تسجيل اللاعب بنجاح!";
+          msg.style.background = "linear-gradient(135deg, rgba(245, 158, 11,0.2), rgba(245, 158, 11,0.1))";
+          msg.style.color = "#fcd34d";
+
+        } catch (err) {
+          msg.textContent = "❌ حدث خطأ أثناء التسجيل.";
+          msg.style.background = "linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2))";
+          msg.style.color = "#fecaca";
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane ml-2"></i> إرسال التقديم';
+      });
+
+      // ================= حماية تصدير ومسح الكل =================
+      function askPassword(actionCallback) {
+        const password = prompt("الرجاء إدخال كلمة السر:");
+        if (password === "782626") { // ضع كلمة السر هنا
+          actionCallback();
+        } else if (password !== null) {
+          alert("كلمة السر خاطئة!");
+        }
+      }
+
+      exportBtn.addEventListener('click', () => {
+        askPassword(() => {
+          if (players.length === 0) {
+            alert("لا يوجد بيانات لتصديرها.");
+            return;
+          }
+          const csvHeader = "الاسم,سنة الميلاد,رقم الهاتف,المركز\n";
+          const csvRows = players.map(p => `${p.name},${p.year},${p.phone},${p.position}`).join("\n");
+          const csvContent = "data:text/csv;charset=utf-8," + csvHeader + csvRows;
+          const encodedUri = encodeURI(csvContent);
+          const link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", "players_data.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      });
+
+      clearBtn.addEventListener('click', () => {
+        askPassword(() => {
+          if (confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
+            players = [];
+            localStorage.removeItem("players");
+            updatePlayersList();
+          }
+        });
+      });
+
+      // ================= دوال مساعدة =================
+      function switchTab(tabBtn, section) {
+        [tabForm, tabPlayers, tabAbout].forEach(t => t.classList.replace('gold-gradient', 'bg-slate-700'));
+        [tabForm, tabPlayers, tabAbout].forEach(t => t.classList.replace('text-gray-900', 'text-amber-300'));
+        tabBtn.classList.replace('bg-slate-700', 'gold-gradient');
+        tabBtn.classList.replace('text-amber-300', 'text-gray-900');
+
+        [formSection, playersSection, aboutSection].forEach(s => s.classList.remove('active'));
+        section.classList.add('active');
+      }
+
+      function updatePlayersList(filterYear="all") {
+  playersList.innerHTML = "";
+  let filtered = players;
+  if (filterYear !== "all") {
+    filtered = players.filter(p => p.year === filterYear);
+  }
+  if (filtered.length === 0) {
+    playersList.innerHTML = `<div class="text-center py-8 text-amber-200">
+      <i class="fas fa-users text-4xl mb-4"></i>
+      <p>لا يوجد لاعبون مسجلون بعد</p>
+    </div>`;
+    return;
+  }
+  filtered.forEach(p => {
+    const card = document.createElement('div');
+    card.className = "player-card bg-slate-700/60 p-4 rounded-xl shadow-lg flex flex-col space-y-2 transition-all duration-300";
+
+    // محتوى الكرت بدون صورة ورقم الهاتف مخفي
+    card.innerHTML = `
+      <h3 class="text-lg font-bold text-amber-300">${p.name}</h3>
+      <p>سنة الميلاد: ${p.year}</p>
+      <p>المركز: ${p.position}</p>
+    `;
+    playersList.appendChild(card);
+  });
+}
+    });
+  </script>
+</body>
+</html>
